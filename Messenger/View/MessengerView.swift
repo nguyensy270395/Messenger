@@ -160,6 +160,7 @@ struct ContentMessage: Identifiable {
 struct Account: Identifiable {
     var id: UUID
     var name: String
+    var image: UIImage
     var password: String
     var username: String
 }

@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @State var search = ""
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             VStack {
                 ZStack {
                     HStack {
@@ -56,7 +56,7 @@ struct HomeView: View {
             .padding(.bottom)
            
             ScrollView(.vertical, showsIndicators: false) {
-                
+                UserChatView()
             }
             
             
@@ -72,4 +72,27 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
     }
+}
+
+struct UserChatView: View {
+    var body: some View {
+            HStack {
+                Image("user")
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 80, height: 80)
+                    .clipShape(Circle())
+                VStack(alignment: .leading){
+                    Text("Thanh Thanh")
+                        .font(.title2)
+                        .fontWeight(.medium)
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                    Text("Message: Hello")
+                        .font(.caption)
+                }
+                
+            }
+            .padding()
+        }
+    
 }
