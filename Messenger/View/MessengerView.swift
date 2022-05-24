@@ -9,96 +9,125 @@ import SwiftUI
 
 struct MessengerView: View {
     @State var text = ""
+    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.self) var env
     var body: some View {
-        VStack(spacing: 0) {
-            Group {
-                HStack {
-                    Image(systemName: "chevron.left")
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor(Color("Color1"))
-                        .frame(width: 27, height: 27)
-                        .padding(.trailing, 10)
-                    Image("imageAccount")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 45, height: 45)
-                        .clipShape(Circle())
-                    VStack {
-                        Text("Thanh Thanh")
-                            .font(.system(size: 25))
-                            .fontWeight(.semibold)
-                            .padding(.top, 8)
-                        Spacer(minLength: 0)
-                    }
-                    Spacer()
-                    
-                    Image(systemName: "phone.fill")
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor(Color("Color1"))
-                        .frame(width: 28, height: 28)
-                        .padding(.trailing, 12)
-                    Image(systemName: "video.fill")
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor(Color("Color1"))
-                        .frame(width: 35, height: 35)
-                        
-                }
-                .frame(height: 65)
-                .padding(.horizontal)
-                .background(.white)
-            }
-            
-            ScrollView(.vertical, showsIndicators: true) {
-                
-                VStack(alignment: .leading) {
-                    MessageView(message: ContentMessage(id: UUID(), text: "A class is mutable, so when you change the rate inside the class, you still have the same instance.", timeStamp: Date(), from: UUID(), to: UUID()))
-                    MessageView(message: ContentMessage(id: UUID(), text: "A class is mutable", timeStamp: Date(), from: UUID(), to: UUID()))
-                }
-                .frame(minWidth: 0, maxWidth: .infinity)
-                    
-                
-                
-            }
-            Group {
-                HStack(spacing: 20){
-                    Image(systemName: "camera.fill")
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor(Color("Color1"))
-                        .frame(width: 35, height: 35)
-                    Image(systemName: "photo")
-                        .renderingMode(.template)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .foregroundColor(Color("Color1"))
-                        .frame(width: 35, height: 35)
-
-                    ZStack (alignment: .leading) {
-                        TextField("", text: $text)
-                            .padding(10)
-                            .frame(maxWidth: .infinity)
-                            .background(.gray.opacity(0.1))
-                            .clipShape(Capsule())
-                        Text(text.isEmpty ? "Aa": "")
-                            .font(.system(size: 20))
-                            .foregroundColor(.gray)
-                            .padding(.horizontal, 10)
-                        
+        BaseView(isNav: false, title: "", navigationBarHidden: true) {
+            VStack(spacing: 0) {
+                Group {
+                    HStack {
+                        Button {
+                            env.dismiss()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                                .renderingMode(.template)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(Color("Color1"))
+                                .frame(width: 27, height: 27)
+                                .padding(.trailing, 10)
+                        }
+                        Image("imageAccount")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 45, height: 45)
+                            .clipShape(Circle())
+                        VStack {
+                            Text("Thanh Thanh")
+                                .font(.system(size: 25))
+                                .fontWeight(.semibold)
+                                .padding(.top, 8)
+                            Spacer(minLength: 0)
+                        }
+                        Spacer()
+                        Button {
                             
+                        } label: {
+                            Image(systemName: "phone.fill")
+                                .renderingMode(.template)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(Color("Color1"))
+                                .frame(width: 28, height: 28)
+                                .padding(.trailing, 12)
+                        }
+                        
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "video.fill")
+                                .renderingMode(.template)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(Color("Color1"))
+                                .frame(width: 35, height: 35)
+                        }
+                        
+                        
                     }
-                    .frame(maxWidth: .infinity)
+                    .frame(height: 65)
+                    .padding(.horizontal)
+                    
+                }
+                ScrollView(.vertical, showsIndicators: true) {
+                    
+                    VStack(alignment: .leading) {
+                        MessageReceivedView(message: ContentMessage(id: UUID(), text: "A class is mutable, so when you change the rate inside the class, you still have the same instance.", timeStamp: Date(), from: 1, to: 2))
+                        MessageReceivedView(message: ContentMessage(id: UUID(), text: "A class is mutable", timeStamp: Date(), from: 1, to: 2))
+                        MessageSendView(message: ContentMessage(id: UUID(), text: "Oke.", timeStamp: Date(), from: 2, to: 1))
+                        MessageSendView(message: ContentMessage(id: UUID(), text: "Thank you so much, i fix it right now", timeStamp: Date(), from: 2, to: 1))
+                    }
+                    .frame(minWidth: 0, maxWidth: .infinity)
                     
                     
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
+                Group {
+                    HStack(spacing: 16){
+                        
+                        
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "photo")
+                                .renderingMode(.template)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .foregroundColor(Color("Color1"))
+                                .frame(width: 32, height: 32)
+                        }
+                        
+                        
+                        ZStack (alignment: .leading) {
+                            TextField("", text: $text)
+                                .padding(10)
+                                .frame(maxWidth: .infinity)
+                                .background(colorScheme == .dark ? .white.opacity(0.6) : .gray.opacity(0.1))
+                                .clipShape(Capsule())
+                            Text(text.isEmpty ? "Aa": "")
+                                .font(.system(size: 20))
+                                .foregroundColor(colorScheme == .dark ? .white : .gray)
+                                .padding(.horizontal, 10)
+                        }
+                        .frame(maxWidth: .infinity)
+                        
+                        if !text.isEmpty {
+                            Button {
+                                
+                            } label: {
+                                Image(systemName: "paperplane.fill")
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .foregroundColor(Color("Color1"))
+                                    .frame(width: 32, height: 32)
+                                    .rotationEffect(.degrees(45))
+                            }
+                        }
+                        
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                }
             }
         }
         
@@ -111,7 +140,8 @@ struct MessengerView_Previews: PreviewProvider {
     }
 }
 
-struct MessageView: View {
+struct MessageReceivedView: View {
+    @Environment(\.colorScheme) var colorScheme
     var message: ContentMessage
     @State private var showTimeStamp = false
     var body: some View {
@@ -124,19 +154,19 @@ struct MessageView: View {
                         .fontWeight(.regular)
                         .padding(.horizontal)
                         .padding(.vertical, 8)
-                        .background(.gray.opacity(0.1))
+                        .background(colorScheme == .dark ? .white.opacity(0.82) : .gray.opacity(0.1))
                         .cornerRadius(15)
                         .onTapGesture {
                             showTimeStamp.toggle()
                         }
                     if showTimeStamp {
                         
-                            Text( message.timeStamp.timeIn24HourFormat())
-                                .font(.system(size: 14))
-                                .foregroundColor(.gray)
-                                .fontWeight(.semibold)
-                                .padding(.horizontal)
-                                .padding(.vertical, 6)
+                        Text( message.timeStamp.timeIn24HourFormat())
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal)
+                            .padding(.vertical, 6)
                     }
                 }
                 Spacer(minLength: 0)
@@ -145,20 +175,60 @@ struct MessageView: View {
             Spacer()
         }
         .padding(.horizontal)
-       
+        
+    }
+}
+struct MessageSendView: View {
+    @Environment(\.colorScheme) var colorScheme
+    var message: ContentMessage
+    @State private var showTimeStamp = false
+    var body: some View {
+        HStack {
+            Spacer()
+            HStack {
+                Spacer(minLength: 0)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(message.text)
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                        .fontWeight(.regular)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                        .background( Color("Color1"))
+                        .cornerRadius(15)
+                        .onTapGesture {
+                            showTimeStamp.toggle()
+                        }
+                    if showTimeStamp {
+                        
+                        Text( message.timeStamp.timeIn24HourFormat())
+                            .font(.system(size: 14))
+                            .foregroundColor(.gray)
+                            .fontWeight(.semibold)
+                            .padding(.horizontal)
+                            .padding(.vertical, 6)
+                    }
+                }
+                
+            }
+            .frame(maxWidth: 320)
+            
+        }
+        .padding(.horizontal)
+        
     }
 }
 struct ContentMessage: Identifiable {
     var id: UUID
     var text: String
     var timeStamp: Date
-    var from: UUID
-    var to: UUID
+    var from: Int
+    var to: Int
 }
 
 
 struct Account: Identifiable {
-    var id: UUID
+    var id: Int
     var name: String
     var image: UIImage
     var password: String

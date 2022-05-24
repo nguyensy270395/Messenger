@@ -12,9 +12,11 @@ struct HomeView: View {
     @State var search = ""
     @State var index = 0
     @State var showPlaceholder = true
+    @State var pushPersonView = false
+    @StateObject var viewModel = HomeViewModel()
     
     var body: some View {
-        
+        BaseView(isNav: true, title: "", navigationBarHidden: true) {
             VStack(spacing: 0) {
                 VStack {
                     ZStack {
@@ -25,6 +27,13 @@ struct HomeView: View {
                                 .frame(width: 40, height: 40)
                                 .clipShape(Circle())
                                 .padding(.horizontal)
+                                .onTapGesture {
+                                    pushPersonView.toggle()
+                                }
+                                .sheet(isPresented: $pushPersonView) {
+                                    PersonView()
+                                        .environmentObject(viewModel)
+                                }
                             Spacer(minLength: 0)
                             
                         }
@@ -40,12 +49,12 @@ struct HomeView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width: 22, height: 22)
-                                    .foregroundColor(.black.opacity(0.5))
+                                    .foregroundColor(Color("colorText").opacity(0.5))
                                     
                                 Text("Tìm kiếm")
                                     .font(.system(size: 21))
                                     .fontWeight(.regular)
-                                    .foregroundColor(.black.opacity(0.5))
+                                    .foregroundColor(Color("colorText").opacity(0.5))
                                 Spacer()
                                 
                             }
@@ -57,7 +66,7 @@ struct HomeView: View {
                         })
                             .padding(12)
                             .frame(minWidth: 0, maxWidth: .infinity)
-                            .background(.gray.opacity(0.11))
+                            .background(viewModel.darkMode ? .white.opacity(0.4) : .gray.opacity(0.11))
                             .cornerRadius(13)
      
                     }
@@ -67,18 +76,26 @@ struct HomeView: View {
                 .padding(.bottom)
                
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 16){
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
-                        UserChatView()
+                    VStack(spacing: 0){
+                        NavigationLink(destination: MessengerView() )
+                        {
+                            UserChatView()
+                        }
+                        NavigationLink(destination: MessengerView() )
+                        {
+                            UserChatView()
+                        }
+                        NavigationLink(destination: MessengerView() )
+                        {
+                            UserChatView()
+                        }
+                        NavigationLink(destination: MessengerView() )
+                        {
+                            UserChatView()
+                        }
+                       
                     }
+                    .background(viewModel.darkMode ? .gray.opacity(0.11) : .white)
                     
                 }
                 HStack {
@@ -119,11 +136,12 @@ struct HomeView: View {
                 }
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
-            
-           
         }
-
+           
+            
         
+        
+        }
     
 }
 
@@ -134,6 +152,7 @@ struct HomeView_Previews: PreviewProvider {
 }
 
 struct UserChatView: View {
+    @Environment(\.colorScheme) var colorScheme
     var body: some View {
             HStack {
                 Image("user")
@@ -145,15 +164,20 @@ struct UserChatView: View {
                     Text("TPBank")
                         .font(.system(size: 22))
                         .fontWeight(.medium)
+                        .foregroundColor(Color("colorText"))
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+                        
                     Text("Message: Hello")
                         .font(.system(size: 14))
                         .fontWeight(.regular)
-                        .foregroundColor(.black.opacity(0.7))
+                        .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.7))
                 }
                 
             }
             .padding(.horizontal)
+            .padding(.vertical, 8)
+            
+           
         }
     
 }
