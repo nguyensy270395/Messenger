@@ -79,21 +79,8 @@ struct HomeView: View {
                     VStack(spacing: 0){
                         NavigationLink(destination: MessengerView() )
                         {
-                            UserChatView()
-                        }
-                        NavigationLink(destination: MessengerView() )
-                        {
-                            UserChatView()
-                        }
-                        NavigationLink(destination: MessengerView() )
-                        {
-                            UserChatView()
-                        }
-                        NavigationLink(destination: MessengerView() )
-                        {
-                            UserChatView()
-                        }
-                       
+                            UserChatView(lastMessage: viewModel.lastMessage)
+                        }     
                     }
                     .background(viewModel.darkMode ? .gray.opacity(0.11) : .white)
                     
@@ -153,6 +140,7 @@ struct HomeView_Previews: PreviewProvider {
 
 struct UserChatView: View {
     @Environment(\.colorScheme) var colorScheme
+    var lastMessage: String
     var body: some View {
             HStack {
                 Image("user")
@@ -167,7 +155,7 @@ struct UserChatView: View {
                         .foregroundColor(Color("colorText"))
                         .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
                         
-                    Text("Message: Hello")
+                    Text("Message: \(lastMessage)")
                         .font(.system(size: 14))
                         .fontWeight(.regular)
                         .foregroundColor(colorScheme == .dark ? .white.opacity(0.9) : .black.opacity(0.7))

@@ -16,4 +16,6 @@ class HomeViewModel: ObservableObject {
         }
     }
     @Environment(\.colorScheme) var scheme
+    @Published private(set) var lastMessage = ""
+   
 }

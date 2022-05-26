@@ -28,7 +28,7 @@ extension Date {
         return formatter.string(from: self)
     }
     
-    func dateAndTimetoString(format: String = "yyyy-MM-dd HH:mm") -> String {
+    func dateAndTimetoString(format: String = "yyyy-MM-dd HH:mm:ss.SSS Z") -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         formatter.dateFormat = format
@@ -148,4 +148,63 @@ extension Date {
 extension Calendar {
     static var gregorian = Calendar(identifier: .gregorian)
     
+}
+
+extension String {
+    func toDate() -> Date {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS Z"
+        return dateFormatter.date(from: self) ?? Date()
+    }
+}
+
+extension UIImage {
+    enum ContentMode {
+        case contentFill
+        case contentAspectFill
+        case contentAspectFit
+    }
+    
+    func resize(withSize size: CGSize, contentMode: ContentMode = .contentAspectFill) -> UIImage? {
+        let aspectWidth = size.width / self.size.width
+        let aspectHeight = size.height / self.size.height
+        
+        switch contentMode {
+        case .contentFill:
+            return resize(withSize: size)
+        case .contentAspectFit:
+            let aspectRatio = min(aspectWidth, aspectHeight)
+            return resize(withSize: CGSize(width: self.size.width * aspectRatio, height: self.size.height * aspectRatio))
+        case .contentAspectFill:
+            let aspectRatio = max(aspectWidth, aspectHeight)
+            return resize(withSize: CGSize(width: self.size.width * aspectRatio, height: self.size.height * aspectRatio))
+        }
+    }
+    
+    private func resize(withSize size: CGSize) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, self.scale)
+        defer { UIGraphicsEndImageContext() }
+        draw(in: CGRect(x: 0.0, y: 0.0, width: size.width, height: size.height))
+        return UIGraphicsGetImageFromCurrentImageContext()
+    }
+}
+
+extension UIImage {
+    func downloaded(from url: URL) {
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard
+                let httpURLResponse = response as? HTTPURLResponse, httpURLResponse.statusCode == 200,
+                let mimeType = response?.mimeType, mimeType.hasPrefix("image"),
+                let data = data, error == nil,
+                let image = UIImage(data: data)
+                else { return }
+            DispatchQueue.main.async() { [weak self] in
+                self = image
+            }
+        }.resume()
+    }
+    func downloaded(from link: String) {
+        guard let url = URL(string: link) else { return }
+        downloaded(from: url)
+    }
 }

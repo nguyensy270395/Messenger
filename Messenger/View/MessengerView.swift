@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct MessengerView: View {
     @State var text = ""
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.self) var env
+    @StateObject var viewModel = MessengerViewModel()
+    @State var pushImagePicker = false
     var body: some View {
         BaseView(isNav: false, title: "", navigationBarHidden: true) {
             VStack(spacing: 0) {
@@ -53,7 +56,7 @@ struct MessengerView: View {
                         }
                         
                         Button {
-                            
+                           
                         } label: {
                             Image(systemName: "video.fill")
                                 .renderingMode(.template)
@@ -69,24 +72,42 @@ struct MessengerView: View {
                     .padding(.horizontal)
                     
                 }
-                ScrollView(.vertical, showsIndicators: true) {
-                    
-                    VStack(alignment: .leading) {
-                        MessageReceivedView(message: ContentMessage(id: UUID(), text: "A class is mutable, so when you change the rate inside the class, you still have the same instance.", timeStamp: Date(), from: 1, to: 2))
-                        MessageReceivedView(message: ContentMessage(id: UUID(), text: "A class is mutable", timeStamp: Date(), from: 1, to: 2))
-                        MessageSendView(message: ContentMessage(id: UUID(), text: "Oke.", timeStamp: Date(), from: 2, to: 1))
-                        MessageSendView(message: ContentMessage(id: UUID(), text: "Thank you so much, i fix it right now", timeStamp: Date(), from: 2, to: 1))
+                ScrollViewReader { proxy in
+                    ScrollView(.vertical, showsIndicators: true) {
+                        
+                        VStack(alignment: .leading) {
+                            ForEach(viewModel.message, id: \.id) { contentMessage in
+                                if contentMessage.to == 1 {
+                                    MessageReceivedView(message: contentMessage)
+                                        .environmentObject(viewModel)
+                                } else {
+                                    MessageSendView(message: contentMessage)
+                                        .environmentObject(viewModel)
+                                }
+//                                if contentMessage.image != "" {
+                                    AnimatedImage(url: URL(string: "https://firebasestorage.googleapis.com:443/v0/b/messengerapp-88ebe.appspot.com/o/images%2F0376F221-46B3-454C-A969-64215DA0F430.jpg?alt=media&token=9bb6740c-c982-4f34-a383-d6bca8f548be"))
+//                                    
+//                                }
+                                
+                            }
+                            
+                        }
+                        .frame(minWidth: 0, maxWidth: .infinity)
+                        
+                        
                     }
-                    .frame(minWidth: 0, maxWidth: .infinity)
-                    
-                    
+                    .onChange(of: viewModel.lastMessageId) { id in
+           
+                            proxy.scrollTo(id, anchor: .bottom)
+                        
+                    }
                 }
                 Group {
                     HStack(spacing: 16){
                         
                         
                         Button {
-                            
+                            pushImagePicker.toggle()
                         } label: {
                             Image(systemName: "photo")
                                 .renderingMode(.template)
@@ -95,23 +116,32 @@ struct MessengerView: View {
                                 .foregroundColor(Color("Color1"))
                                 .frame(width: 32, height: 32)
                         }
-                        
-                        
-                        ZStack (alignment: .leading) {
-                            TextField("", text: $text)
-                                .padding(10)
-                                .frame(maxWidth: .infinity)
-                                .background(colorScheme == .dark ? .white.opacity(0.6) : .gray.opacity(0.1))
-                                .clipShape(Capsule())
-                            Text(text.isEmpty ? "Aa": "")
-                                .font(.system(size: 20))
-                                .foregroundColor(colorScheme == .dark ? .white : .gray)
-                                .padding(.horizontal, 10)
+                        .sheet(isPresented: $pushImagePicker) {
+                            ImagePicker(sourceType: .photoLibrary, selectedImage: $viewModel.image)
                         }
-                        .frame(maxWidth: .infinity)
-                        
-                        if !text.isEmpty {
+
+                        if viewModel.image != UIImage() {
+                            ZStack(alignment: .topTrailing){
+                                Image(uiImage: viewModel.image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 120, height: 100)
+                                    .clipped()
+                                Image(systemName: "xmark.circle.fill")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 20, height: 20)
+                                    .foregroundColor(.white)
+                                    .padding(10)
+                                    .onTapGesture {
+                                        viewModel.image = UIImage()
+                                    }
+                            }
+                            .padding(.horizontal)
+                            
+                            Spacer()
                             Button {
+                                viewModel.sendImage()
                                 
                             } label: {
                                 Image(systemName: "paperplane.fill")
@@ -122,7 +152,43 @@ struct MessengerView: View {
                                     .frame(width: 32, height: 32)
                                     .rotationEffect(.degrees(45))
                             }
+                        } else {
+                            ZStack (alignment: .leading) {
+                                
+                                Text(text.isEmpty ? "Aa": "")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(colorScheme == .dark ? .white : .gray)
+                                    .padding(.horizontal, 10)
+                                TextField("", text: $text, onCommit: {
+                                    viewModel.sendMessage(text: text, toUserId: 2)
+                                    text = ""
+                                })
+                                .padding(10)
+                                .frame(maxWidth: .infinity)
+                                .background(colorScheme == .dark ? .white.opacity(0.6) : .gray.opacity(0.1))
+                                .clipShape(Capsule())
+                            }
+                            .frame(maxWidth: .infinity)
+                            if !text.isEmpty {
+                                Button {
+                                    viewModel.sendMessage(text: text, toUserId: 2)
+                                    text = ""
+                                    
+                                } label: {
+                                    Image(systemName: "paperplane.fill")
+                                        .renderingMode(.template)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .foregroundColor(Color("Color1"))
+                                        .frame(width: 32, height: 32)
+                                        .rotationEffect(.degrees(45))
+                                }
+                            }
                         }
+                        
+                         
+                           
+                        
                         
                     }
                     .padding(.horizontal)
@@ -142,33 +208,42 @@ struct MessengerView_Previews: PreviewProvider {
 
 struct MessageReceivedView: View {
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var viewModel: MessengerViewModel
     var message: ContentMessage
     @State private var showTimeStamp = false
     var body: some View {
         HStack {
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(message.text)
-                        .font(.system(size: 20))
-                        .foregroundColor(.black)
-                        .fontWeight(.regular)
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                        .background(colorScheme == .dark ? .white.opacity(0.82) : .gray.opacity(0.1))
-                        .cornerRadius(15)
-                        .onTapGesture {
-                            showTimeStamp.toggle()
-                        }
-                    if showTimeStamp {
-                        
-                        Text( message.timeStamp.timeIn24HourFormat())
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
-                            .fontWeight(.semibold)
+//                if message.image != "" {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(message.text)
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                            .fontWeight(.regular)
                             .padding(.horizontal)
-                            .padding(.vertical, 6)
+                            .padding(.vertical, 8)
+                            .background(colorScheme == .dark ? .white.opacity(0.82) : .gray.opacity(0.1))
+                            .cornerRadius(15)
+                            .onTapGesture {
+                                showTimeStamp.toggle()
+                            }
+                        if showTimeStamp {
+                            
+                            Text( message.timeStamp.timeIn24HourFormat())
+                                .font(.system(size: 14))
+                                .foregroundColor(.gray)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal)
+                                .padding(.vertical, 6)
+                        }
                     }
-                }
+//                } else {
+//                    Image(uiImage: viewModel.getImage(imageID: message.image))
+//                        .resizable()
+//                        .aspectRatio(contentMode: .fit)
+//                        .frame(width: 300)
+//                }
+               
                 Spacer(minLength: 0)
             }
             .frame(maxWidth: 320)
@@ -180,6 +255,7 @@ struct MessageReceivedView: View {
 }
 struct MessageSendView: View {
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var viewModel: MessengerViewModel
     var message: ContentMessage
     @State private var showTimeStamp = false
     var body: some View {
@@ -187,7 +263,8 @@ struct MessageSendView: View {
             Spacer()
             HStack {
                 Spacer(minLength: 0)
-                VStack(alignment: .leading, spacing: 2) {
+                
+                    VStack(alignment: .leading, spacing: 2) {
                     Text(message.text)
                         .font(.system(size: 20))
                         .foregroundColor(.white)
@@ -210,6 +287,7 @@ struct MessageSendView: View {
                     }
                 }
                 
+                
             }
             .frame(maxWidth: 320)
             
@@ -218,8 +296,9 @@ struct MessageSendView: View {
         
     }
 }
-struct ContentMessage: Identifiable {
-    var id: UUID
+struct ContentMessage: Identifiable, Hashable {
+    var id: Int
+    var image: String
     var text: String
     var timeStamp: Date
     var from: Int
